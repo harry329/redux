@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Udacity Todos</title>
+</head>
+<body>
+    <div>
+        <h1>ToDos List</h1>
+        <input id="todo" type="text" placeholder="todos" >
+        <button id="todobtn">Press todo</button>
+        <ul id="todoLst"></ul>
+    </div>
+    <div>
+        <h1>Gaols List</h1>
+        <input id="goals" type="text" placeholder="Goals" >
+        <button id="goalsbtn">Press Goal</button>
+        <ul id="goalList"></ul>
+    </div>
+
+
+    <script type="text/javascript">
+        function creatStore(reducer) {
+
+            let state;
+            let listeners = [];
+
+            const getStore = () => state
+
+            const subscribe = (listener) => {
+                listeners.push(listener)
+                return () => {
+                    listeners = listeners.filter( (l) => l!== listener)
+                }
+            }
+
+            const dispatch = (action) => {
+                state = reducer(state, action)
+                listeners.forEach((listener) => listener())
+            }
+
+            return {
+                getStore,
+                subscribe,
+                dispatch
+            }
+
+        }
+
+        function todos(state =[], actions) {
+            if(actions.type === 'ADD_TODO') {
+                return state.concat(actions.toDo)
+            } else if (actions.type === 'REMOVE_TODO') {
+                return state.filter( (todo) => todo.id !== actions.id)
+            } else if (actions.type === 'TOGGLE_TODO') {
+                return state.map( (todo) => todo.id !== actions.id ? todo : Object.assign({}, todo, {complete : !todo.complete}) )
+            } else {
+                return state
+            }
+
+        }
+
+        function goals(state=[], action) {
+            switch (action.type) {
+                case 'ADD_GOAL' :
+                    return state.concat(action.goal)
+                case 'REMOVE_GOAL' :
+                    return state.filter((goal) => goal.id !== action.goal)
+                default:
+                    return state
+            }
+        }
+
+        function app (state = {}, action) {
+            return {
+                todos : todos(state.todos, action),
+                goals : goals(state.goals, action)
+            }
+
+        }
+
+        let store = creatStore(app)
+        store.subscribe( () => {
+            console.log(" i am getting changed", store.getStore())
+
+            const {todos, goals} = store.getStore()
+
+            document.getElementById('todoLst').innerHTML = ''
+            document.getElementById('goalList').innerHTML = ''
+            todos.forEach(addToDoList)
+            goals.forEach(addGoals)
+        })
+
+        // store.dispatch( {
+        //     type: 'ADD_TODO',
+        //     toDo : {
+        //         id: 1,
+        //         complete: false,
+        //         name: 'Learn Redux'
+        //     }
+        // })
+        //
+        // store.dispatch( {
+        //     type: 'ADD_GOAL',
+        //     goal : {
+        //         id: 1,
+        //         complete: false,
+        //         name: 'Learn Redux'
+        //     }
+        // })
+
+        function addButton() {
+            const input = document.getElementById("todo")
+            const val = input.value
+            input.value = ''
+            store.dispatch( {
+                type: 'ADD_TODO',
+                toDo : {
+                    id: 1,
+                    complete: false,
+                    name: val
+                }
+            })
+        }
+
+        function addGoal() {
+            const input = document.getElementById("goals")
+            const value = input.value
+            input.value = ''
+            store.dispatch( {
+                type: 'ADD_GOAL',
+                goal : {
+                    id: 1,
+                    complete: false,
+                    name: value
+                }
+            })
+
+        }
+
+
+        document.getElementById("todobtn").addEventListener('click', addButton)
+        document.getElementById("goalsbtn").addEventListener('click', addGoal)
+
+        function addToDoList(todo) {
+            const node = document.createElement('li')
+            const text = document.createTextNode(todo.name)
+            node.appendChild(text)
+            document.getElementById('todoLst').appendChild(node)
+
+        }
+
+        function  addGoals(goal) {
+            const node = document.createElement('li')
+            const text = document.createTextNode(goal.name)
+            node.appendChild(text)
+            document.getElementById('goalList').appendChild(node)
+
+        }
+
+    </script>
+
+</body>
+</html>
