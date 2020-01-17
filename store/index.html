@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Udacity Todos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script>
 </head>
 <body>
     <div>
@@ -20,32 +21,32 @@
 
 
     <script type="text/javascript">
-        function creatStore(reducer) {
-
-            let state;
-            let listeners = [];
-
-            const getStore = () => state
-
-            const subscribe = (listener) => {
-                listeners.push(listener)
-                return () => {
-                    listeners = listeners.filter( (l) => l!== listener)
-                }
-            }
-
-            const dispatch = (action) => {
-                state = reducer(state, action)
-                listeners.forEach((listener) => listener())
-            }
-
-            return {
-                getStore,
-                subscribe,
-                dispatch
-            }
-
-        }
+        // function creatStore(reducer) {
+        //
+        //     let state;
+        //     let listeners = [];
+        //
+        //     const getStore = () => state
+        //
+        //     const subscribe = (listener) => {
+        //         listeners.push(listener)
+        //         return () => {
+        //             listeners = listeners.filter( (l) => l!== listener)
+        //         }
+        //     }
+        //
+        //     const dispatch = (action) => {
+        //         state = reducer(state, action)
+        //         listeners.forEach((listener) => listener())
+        //     }
+        //
+        //     return {
+        //         getStore,
+        //         subscribe,
+        //         dispatch
+        //     }
+        //
+        // }
 
         function todos(state =[], actions) {
             if(actions.type === 'ADD_TODO') {
@@ -79,11 +80,14 @@
 
         }
 
-        let store = creatStore(app)
+        let store = Redux.createStore(Redux.combineReducers( {
+            todos,
+            goals
+        }))
         store.subscribe( () => {
-            console.log(" i am getting changed", store.getStore())
+            console.log(" i am getting changed", store.getState())
 
-            const {todos, goals} = store.getStore()
+            const {todos, goals} = store.getState()
 
             document.getElementById('todoLst').innerHTML = ''
             document.getElementById('goalList').innerHTML = ''
